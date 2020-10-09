@@ -21,6 +21,20 @@ ARG FULL_LLVM
 COPY build-llvm.sh ./
 RUN ./build-llvm.sh $TOOLCHAIN_PREFIX
 
+# Building lldb-mi requires having a full installation of llvm available.
+# Kept this in a separate docker RUN cmd (for now, while testing), to allow reusing
+# the previous state without rebuilding llvm.
+RUN ./build-llvm.sh $TOOLCHAIN_PREFIX --full-llvm
+# lldb-mi requires having curses available, for non-windows targets.
+RUN apt-get update -qq && apt-get install -qqy --no-install-recommends \
+    libncurses5-dev && \
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY build-lldb-mi.sh ./
+COPY patches/lldb-mi/*.patch ./patches/lldb-mi/
+RUN ./build-lldb-mi.sh $TOOLCHAIN_PREFIX
+
 # Strip the LLVM install output immediately. (This doesn't reduce the
 # total docker image size as long as it is in a separate RUN layer though,
 # but reduces build times if tweaking the contents of strip-llvm.sh.)
