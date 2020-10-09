@@ -1,0 +1,32 @@
+From 2078f3945093e84ec7a1a6f527ebc8e9ebcf7d16 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20Storsj=C3=83?= <martin@martin.st>
+Date: Fri, 9 Oct 2020 10:49:37 +0000
+Subject: [PATCH 2/2] Make the curses dependency optional
+
+lldb-mi doesn't seem to use curses directly at all - this apparently
+only is needed as a potential transitive dependency of lldb? In that
+case, if linking liblldb dynamically, it should be handled
+transparently anyway, not requiring lldb-mi to explicitly specify
+it?
+---
+ src/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 5580ca1..79c0468 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -96,8 +96,8 @@ if (NOT lib_llvm)
+     find_library(lib ${dependency} HINTS ${LLVM_LIBRARY_DIRS})
+     list(APPEND llvm_deps "${lib}")
+   endforeach()
+-  if(NOT WIN32)
+-    find_package(Curses REQUIRED)
++  find_package(Curses)
++  if (CURSES_FOUND)
+     list(APPEND llvm_deps "${CURSES_LIBRARIES}")
+   endif()
+ endif()
+-- 
+2.17.1
+
