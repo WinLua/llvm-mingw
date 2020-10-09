@@ -21,11 +21,6 @@ ARG FULL_LLVM
 COPY build-llvm.sh ./
 RUN ./build-llvm.sh $TOOLCHAIN_PREFIX
 
-# Building lldb-mi requires having a full installation of llvm available.
-# Kept this in a separate docker RUN cmd (for now, while testing), to allow reusing
-# the previous state without rebuilding llvm.
-RUN ./build-llvm.sh $TOOLCHAIN_PREFIX --full-llvm
-
 COPY build-lldb-mi.sh ./
 COPY patches/lldb-mi/*.patch ./patches/lldb-mi/
 RUN ./build-lldb-mi.sh $TOOLCHAIN_PREFIX

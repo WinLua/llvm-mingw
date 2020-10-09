@@ -33,7 +33,6 @@ ARG FULL_LLVM
 COPY build-llvm.sh .
 RUN ./build-llvm.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST
 
-RUN ./build-llvm.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST --full-llvm
 COPY build-lldb-mi.sh .
 COPY patches/lldb-mi/*.patch ./patches/lldb-mi/
 RUN ./build-lldb-mi.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST

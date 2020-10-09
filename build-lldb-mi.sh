@@ -72,6 +72,8 @@ else
 fi
 
 if [ -n "$HOST" ]; then
+    BUILDDIR=$BUILDDIR-$HOST
+
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_SYSTEM_NAME=Windows"
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_CROSSCOMPILING=TRUE"
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_C_COMPILER=$HOST-gcc"
@@ -79,13 +81,15 @@ if [ -n "$HOST" ]; then
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_RC_COMPILER=$HOST-windres"
 
     CROSS_ROOT=$(cd $(dirname $(which $HOST-gcc))/../$HOST && pwd)
-    CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_FIND_ROOT_PATH=$PREFIX"
+    CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_FIND_ROOT_PATH=$(pwd)/llvm-project/llvm/$BUILDDIR"
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"
     CMAKEFLAGS="$CMAKEFLAGS -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"
-
-    BUILDDIR=$BUILDDIR-$HOST
 fi
+
+# This assumes llvm was built with a builddir with the same name. If llvm was
+# built with e.g. --enable-asserts, it won't match.
+export LLVM_DIR=$(pwd)/llvm-project/llvm/$BUILDDIR
 
 cd lldb-mi
 
