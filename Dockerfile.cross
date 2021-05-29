@@ -11,18 +11,6 @@
 ARG BASE=mstorsjo/llvm-mingw:dev
 FROM $BASE
 
-RUN apt-get update -qq && \
-    apt-get install -qqy zip && \
-    apt-get clean -y && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN cd /opt && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.16.2/cmake-3.16.2-Linux-x86_64.tar.gz && \
-    tar -zxvf cmake-*.tar.gz && \
-    rm cmake-*.tar.gz && \
-    mv cmake-* cmake
-ENV PATH=/opt/cmake/bin:$PATH
-
 ARG CROSS_ARCH=x86_64
 ENV CROSS_TOOLCHAIN_PREFIX=/opt/llvm-mingw-$CROSS_ARCH
 
@@ -51,6 +39,6 @@ COPY build-make.sh .
 RUN ./build-make.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST
 
 ARG TAG
-RUN ln -s $CROSS_TOOLCHAIN_PREFIX llvm-mingw && \
-    zip -9r /llvm-mingw-$TAG$CROSS_ARCH.zip llvm-mingw && \
+RUN ln -s $CROSS_TOOLCHAIN_PREFIX llvm-mingw-$TAG$CROSS_ARCH && \
+    zip -9r /llvm-mingw-$TAG$CROSS_ARCH.zip llvm-mingw-$TAG$CROSS_ARCH && \
     ls -lh /llvm-mingw-$TAG$CROSS_ARCH.zip

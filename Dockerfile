@@ -2,10 +2,17 @@ FROM ubuntu:18.04
 
 RUN apt-get update -qq && apt-get install -qqy --no-install-recommends \
     git wget bzip2 file unzip libtool pkg-config cmake build-essential \
-    automake yasm gettext autopoint vim python ninja-build \
-    ca-certificates curl less && \
+    automake yasm gettext autopoint vim-tiny python3 python3-distutils \
+    ninja-build ca-certificates curl less zip && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
+
+RUN cd /opt && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1-Linux-$(uname -m).tar.gz && \
+    tar -zxvf cmake-*.tar.gz && \
+    rm cmake-*.tar.gz && \
+    mv cmake-* cmake
+ENV PATH=/opt/cmake/bin:$PATH
 
 
 RUN git config --global user.name "LLVM MinGW" && \
@@ -32,6 +39,7 @@ COPY wrappers/uasm-wrapper.sh $TOOLCHAIN_PREFIX/bin
 # Build everything that uses the llvm monorepo. We need to build the mingw runtime before the compiler-rt/libunwind/libcxxabi/libcxx runtimes.
 COPY build-llvm.sh strip-llvm.sh install-wrappers.sh build-mingw-w64.sh build-mingw-w64-tools.sh build-compiler-rt.sh build-mingw-w64-libraries.sh build-libcxx.sh build-openmp.sh ./
 COPY wrappers/*.sh wrappers/*.c wrappers/*.h ./wrappers/
+COPY patches/llvm-project/*.patch ./patches/llvm-project/
 RUN ./build-llvm.sh $TOOLCHAIN_PREFIX && \
     ./strip-llvm.sh $TOOLCHAIN_PREFIX && \
     ./install-wrappers.sh $TOOLCHAIN_PREFIX && \
